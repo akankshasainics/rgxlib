@@ -1,33 +1,28 @@
 import sys
-brackets = { "(": ")", "[": "]"}
+from typing import Pattern
+bracket_pair = { "(": ")", "[": "]"}
 small_alphabet = "abcdefgjijklmnopqrstuvwxyz"
 capital_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 digits = "0123456789"
 alpha_numeric = small_alphabet + capital_alphabet + digits + '_'
 groups = {"A-Z": capital_alphabet, "a-z": small_alphabet, "0-9": digits}
 
-
-def find_closing_bracket(pattern):
-	count = 0
-	i = 0
-	brack = pattern[i]
-	while i < len(pattern):
-		if pattern[i] == brack:
-			count += 1
-		if pattern[i] == brackets[brack]:
-			count -= 1
-		if count == 0:
+def find_closing_bracket(string, opening_loc):
+	stack = 0
+	open_brack = string[opening_loc]
+	for i, char in  enumerate(string[opening_loc+1:], start = opening_loc+1):
+		if char == open_brack:
+			stack += 1
+		if char == bracket_pair[open_brack]:
+			stack -= 1
+		if stack == 0:
 			return i
-		i += 1
-	if count != -1:
+	if stack != -1:
 		raise ValueError("invalid pattern")
 
 
 def expand_group(pattern):
-	s = set()
-	for c in groups[pattern]:
-		s.add(c)
-	return s
+	return set(groups[pattern])
 
 def simplify_square_bracket(pattern):
 	i = 0
@@ -73,14 +68,44 @@ def match_square_bracket_pattern(pattern, text):
 				result.append([i,i])
 	return result
 
-
+"[A-Z]f", "Bfc" [[0,1],[5,6]]
 def match_pattern(pattern, text, i = 0, j = float("inf")):
-	if pattern[i] in brackets:
-		index = i + find_closing_bracket(pattern[i:])
+	if pattern[i] in bracket_pair:
+		index = find_closing_bracket(pattern, i)
 		if pattern[i] == "[":
 			result = match_square_bracket_pattern(pattern, text, i+1, index-1)
 		else:
 			result = match_pattern(pattern, text, i+1, index-1)
+
+
+def match_and_return_end(pattern: str, text: str)->Optional[int]:
+    pointer = 0
+    i = 0
+    while i < len(pattern):
+        if char not in brackets:
+            if char != text[pointer]:
+                return None
+            i+=1
+        else:
+            ending_brack = find_closing_bracket(pattern, i)
+            char_set = set_from_brack(pattern[i+1:ending_brack])
+            if text[pointer] not in char_set:
+                return None
+            i = ending_brack+1
+        pointer += 1
+    return pointer
+
+
+def find_pattern(pattern: str, text, non_overlapping = False):
+    matches = []
+    while i < len(text):
+        match_idx = match_pattern(pattern, text[i])
+        if match_idx != -1:
+            matches.append([i, match_idx+i])
+        if non_overlapping:
+            i = match_idx +i
+        i += 1
+    return matches
 
 
 

@@ -10,10 +10,10 @@ for c in range(ord("A"), ord("Z")+1):
 
 class TestBasic(unittest.TestCase):
 	def test_find_bracket(self):
-		self.assertEqual(rx.find_end_bracket("(())"), 3)
-		self.assertEqual(rx.find_end_bracket("([(())])"), 7)
-		self.assertEqual(rx.find_end_bracket("[(()]"), 4)
-		self.assertEqual(rx.find_end_bracket("(([))"), 4)
+		self.assertEqual(rx.find_closing_bracket("(())"), 3)
+		self.assertEqual(rx.find_closing_bracket("([(())])"), 7)
+		self.assertEqual(rx.find_closing_bracket("[(()]"), 4)
+		self.assertEqual(rx.find_closing_bracket("(([))"), 4)
 
 	def test_exapnd_group(self):
 		self.assertEqual(rx.expand_group("A-Z"), s)
@@ -37,4 +37,5 @@ class TestBasic(unittest.TestCase):
 
 if __name__ == "__main__":
 	unittest.main()
+
 
