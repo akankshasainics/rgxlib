@@ -58,12 +58,19 @@ def simplify_square_bracket(pattern):
 
 
 
-def eval_square_bracket(pattern, text):
+def match_square_bracket_pattern(pattern, text):
+	if len(pattern) == 0:
+		return []
 	result = []
 	letters = simplify_square_bracket(pattern)
-	for i, p in enumerate(pattern):
-		if p in letters:
-			result.append([i,i])
+	if pattern[0] != '^':
+		for i, p in enumerate(text):
+			if p in letters:
+				result.append([i,i])
+	else:
+		for i,p in enumerate(text):
+			if p not in letters:
+				result.append([i,i])
 	return result
 
 
@@ -71,7 +78,7 @@ def match_pattern(pattern, text, i = 0, j = float("inf")):
 	if pattern[i] in brackets:
 		index = i + find_end_bracket(pattern[i:])
 		if pattern[i] == "[":
-			result = eval_square_bracket(pattern, text, i+1, index-1)
+			result = match_square_bracket_pattern(pattern, text, i+1, index-1)
 		else:
 			result = match_pattern(pattern, text, i+1, index-1)
 
