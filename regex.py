@@ -7,7 +7,7 @@ alpha_numeric = small_alphabet + capital_alphabet + digits + '_'
 groups = {"A-Z": capital_alphabet, "a-z": small_alphabet, "0-9": digits}
 
 
-def find_end_bracket(pattern):
+def find_closing_bracket(pattern):
 	count = 0
 	i = 0
 	brack = pattern[i]
@@ -76,54 +76,11 @@ def match_square_bracket_pattern(pattern, text):
 
 def match_pattern(pattern, text, i = 0, j = float("inf")):
 	if pattern[i] in brackets:
-		index = i + find_end_bracket(pattern[i:])
+		index = i + find_closing_bracket(pattern[i:])
 		if pattern[i] == "[":
 			result = match_square_bracket_pattern(pattern, text, i+1, index-1)
 		else:
 			result = match_pattern(pattern, text, i+1, index-1)
-
-
-	
-
-
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
