@@ -16,6 +16,7 @@ def find_closing_bracket(string, opening_loc):
 		if char == bracket_pair[open_brack]:
 			stack -= 1
 		if stack == 0:
+
 			return i
 	if stack != -1:
 		raise ValueError("invalid pattern")
@@ -72,6 +73,7 @@ def match_square_bracket_pattern(pattern, text):
 def match_pattern(pattern, text, i = 0, j = float("inf")):
 	if pattern[i] in bracket_pair:
 		index = find_closing_bracket(pattern, i)
+
 		if pattern[i] == "[":
 			result = match_square_bracket_pattern(pattern, text, i+1, index-1)
 		else:
@@ -106,6 +108,7 @@ def find_pattern(pattern: str, text, non_overlapping = False):
             i = match_idx +i
         i += 1
     return matches
+
 
 
 
