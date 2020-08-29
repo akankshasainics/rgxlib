@@ -73,20 +73,6 @@ def match_pattern(pattern, text, i = 0, j = float("inf")):
 		else:
 			result = match_pattern(pattern, text, i+1, index-1)
 
-	
-
-
-
-	
-
-
-
-
-
-
-
-
-
 
 
 
