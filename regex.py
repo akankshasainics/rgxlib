@@ -5,7 +5,7 @@ capital_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 digits = "0123456789"
 alpha_numeric = small_alphabet + capital_alphabet + digits + '_'
 groups = {"A-Z": capital_alphabet, "a-z": small_alphabet, "0-9": digits}
-
+# change to test actions
 
 def find_closing_bracket(pattern):
 	count = 0
