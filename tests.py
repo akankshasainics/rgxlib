@@ -11,15 +11,15 @@ class TestBasic(unittest.TestCase):
 		self.assertEqual(rx.find_pattern("abc", "bc"), -1)
 		self.assertEqual(rx.find_pattern("[a-z][0-9]c", "a5ccs"), 2)
 		self.assertEqual(rx.find_pattern("abc", "abc"), 2)
-		self.assertEqual(rx.find_pattern("[ab]c", "acsdf"), 1)
+		self.assertEqual(rx.find_pattern("[]c", "acsdf"), -1)
 		self.assertEqual(rx.find_pattern("xyfggh", "xyz"), -1)
 
 	def test_match_pattern(self):
-		self.assertEqual(rx.match_pattern("abc", "abc"), {"abc"})
-		self.assertEqual(rx.match_pattern("xy", "asxyzzzy"), {"xy"})
+		self.assertEqual(rx.match_pattern("x[^s3+][a-z]", "7xas4-"), {"xas"})
+		self.assertEqual(rx.match_pattern("[7]x","77x"), {"7x"})
 		self.assertEqual(rx.match_pattern("de", "ydealdxe"), {"de"})
 		self.assertEqual(rx.match_pattern("[ab]", "zacfdbc"), {"a", "b"})
-		self.assertEqual(rx.match_pattern("[a-z]+", "+a+b+"), {"a+", "b+"})
+		self.assertEqual(rx.match_pattern("[^a-z]+", "A+a+b+"), {"A+"})
 		self.assertEqual(rx.match_pattern("[A-Z][a-z]+", "+eAh+fKa+"), {"Ka+", "Ah+"})
 
 
