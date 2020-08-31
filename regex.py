@@ -24,7 +24,16 @@ def find_closing_bracket(string: str, opening_loc: int) -> int:
 		raise ValueError("invalid pattern")
 
 
-def simplify_square_bracket(pattern: str) -> set():
+def solve_parenthese(pattern: str, text: str) -> set:
+	ending_brack = find_closing_bracket(pattern, 0)
+	new_pattern = pattern[1:ending_brack]
+	index = find_pattern(new_pattern, text)
+	if index == -1:
+		return False, (-1, -1)
+	return True, (index+1, ending_brack+1)
+
+
+def simplify_square_bracket(pattern: str) -> set:
 	if len(pattern) == 0:
 		return set()
 	i = 0
@@ -60,7 +69,7 @@ def solve_square_bracket(pattern: str, text: str) -> tuple:
 def solve_special_pattern(pattern: str, text: str) -> tuple:
 	if pattern[0] == "[":
 		return solve_square_bracket(pattern, text)
-	return solve_parentheese[pattern[0]](pattern, text)
+	return solve_parenthese(pattern, text)
 
 def find_pattern(pattern: str, text: str) -> int:
 	i = 0
