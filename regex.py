@@ -6,22 +6,29 @@ capital_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 digits = "0123456789"
 alpha_numeric = small_alphabet + capital_alphabet + digits + '_'
 groups = {"A-Z": set(capital_alphabet), "a-z": set(small_alphabet), "0-9": set(digits)}
-special_pattern = {"(": "solve_parentheese", "[": "solve_square_bracket"}
+backward_slash_group = {"\d": set(digits), "\w": set(alpha_numeric)}
+special_pattern = {"(": "solve_parentheese", "[": "solve_square_bracket", "\\": "solve_backward_slash"}
 
 
 
 def find_closing_bracket(string: str, opening_loc: int) -> int:
 	stack = 1
 	open_brack = string[opening_loc]
+	backslash = 0
 	for i, char in  enumerate(string[opening_loc+1:], start = opening_loc+1):
-		if char == open_brack:
+		if char == open_brack and backslash%2 == 0:
 			stack += 1
-		if char == bracket_pair[open_brack]:
+		if char == bracket_pair[open_brack] and backslash%2 == 0:
 			stack -= 1
 		if stack == 0:
 			return i
+		if char == "\\":
+			backslash += 1
+		else:
+			backslash = 0
+
 	if stack != 0:
-		raise ValueError("invalid pattern")
+		raise ValueError("Unmatched opening bracket.")
 
 
 def solve_parenthese(pattern: str, text: str) -> set:
@@ -37,14 +44,23 @@ def simplify_square_bracket(pattern: str) -> set:
 	if len(pattern) == 0:
 		return set()
 	i = 0
+	chars = set()
 	if pattern[0] == "^":
 		i = 1
-	t = False
-	chars = set()
+	
 	while i < len(pattern):
 		if i+2 < len(pattern) and pattern[i:i+3] in groups:
 			chars.update(groups[pattern[i:i+3]])
 			i = i+3
+		elif pattern[i] == "\\":
+			if i+1 == len(pattern):
+				raise ValueError("Dangling backslash")
+			if pattern[i:i+2] in backward_slash_group:
+				chars.update(backward_slash_group[pattern[i:i+2]])
+			else:
+				chars.update({pattern[i+1]})
+			i += 2
+			
 		else:
 			chars.add(pattern[i])
 			i += 1
@@ -66,10 +82,26 @@ def solve_square_bracket(pattern: str, text: str) -> tuple:
 	return False, (-1, -1)
 
 
+
+def solve_backward_slash(pattern, text):
+	if len(pattern) == 1:
+		raise ValueError("Dangling backslash")
+	if (pattern[:2] in backward_slash_group) and (text[0] in backward_slash_group[pattern[:2]]):
+		return True, (1, 2)
+	elif text[0] == pattern[1]:
+		return True, (1, 2)
+	return False, (-1, -1)
+	
+
+
 def solve_special_pattern(pattern: str, text: str) -> tuple:
 	if pattern[0] == "[":
 		return solve_square_bracket(pattern, text)
-	return solve_parenthese(pattern, text)
+	elif pattern[0] == "(":
+		return solve_parenthese(pattern, text)
+	elif pattern[0] == "\\":
+		return solve_backward_slash(pattern, text)
+
 
 def find_pattern(pattern: str, text: str) -> int:
 	i = 0
@@ -81,6 +113,7 @@ def find_pattern(pattern: str, text: str) -> int:
 				return -1
 			i += indexes[1]
 			j += indexes[0]
+
 		elif pattern[i] == text[j]:
 			i += 1
 			j += 1

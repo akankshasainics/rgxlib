@@ -15,16 +15,16 @@ class TestBasic(unittest.TestCase):
 		self.assertEqual(rx.find_pattern("xyfggh", "xyz"), -1)
 
 	def test_match_pattern(self):
-		self.assertEqual(rx.match_pattern("x[^s3+][a-z]", "7xas4-"), {"xas"})
-		self.assertEqual(rx.match_pattern("[7]x","77x"), {"7x"})
-		self.assertEqual(rx.match_pattern("de", "ydealdxe"), {"de"})
-		self.assertEqual(rx.match_pattern("((a)[^a-z])", "abcaL"), {"aL"})
-		self.assertEqual(rx.match_pattern("[^a-z]+", "A+a+b+"), {"A+"})
-		self.assertEqual(rx.match_pattern("[A-Z][a-z]+", "+eAh+fKa+"), {"Ka+", "Ah+"})
+		self.assertEqual(rx.match_pattern(r"x[^s3+][a-z]", "7xas4-"), {"xas"})
+		self.assertEqual(rx.match_pattern(r"[7]x","77x"), {"7x"})
+		self.assertEqual(rx.match_pattern(r"[\da]e\w", "7ee8 2emaec"), {"2em", "7ee", "aec"})
+		self.assertEqual(rx.match_pattern(r"((a)[^a-z])", "abcaL"), {"aL"})
+		self.assertEqual(rx.match_pattern(r"[a-z\d\\\]]", "[]6\e"), {"6", "e", "]", "\\"})
+		self.assertEqual(rx.match_pattern(r"[A-Z][a-z]+", "+eAh+fKa+"), {"Ka+", "Ah+"})
 
 
 	def test_find_closing_bracket(self):
-		self.assertEqual(rx.find_closing_bracket("(())", 0), 3)
+		self.assertEqual(rx.find_closing_bracket("(\())", 0), 3)
 		self.assertEqual(rx.find_closing_bracket("([(())])", 1), 6)
 		self.assertEqual(rx.find_closing_bracket("[(()]", 0), 4)
 		self.assertEqual(rx.find_closing_bracket("(([))", 1), 3)
@@ -33,7 +33,7 @@ class TestBasic(unittest.TestCase):
 		self.assertEqual(rx.simplify_square_bracket("A-Z"), set(capital_alphabet))
 		self.assertEqual(rx.simplify_square_bracket("a+/a-z"), set(small_alphabet + '+' + '/'))
 		self.assertEqual(rx.simplify_square_bracket("0-9A-Z"), set(digits+capital_alphabet))
-
+                                                    
 
 if __name__ == "__main__":
 	unittest.main()
