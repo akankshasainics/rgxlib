@@ -9,8 +9,11 @@ class TestBasic(unittest.TestCase):
 	def test_break_regex(self):
 		self.assertEqual(rx.break_regex(r"\s+(as+)+[a-z]+"), ["\s+", "(as+)+", "[a-z]+"])
 
-	def find_pattern(self):
-		self.assertEqual(rx.find_pattern(r"sdc", "sdcdfsdc"), ["sdc", "sdc"])
+	def test_find_pattern(self):
+		self.assertEqual(rx.find_pattern(r"sdc", r"sdcghrsdcd"), ["sdc", "sdc"])
+		self.assertEqual(rx.find_pattern(r"a+b+", r"aaabba"), ["aaabb"])
+		self.assertEqual(rx.find_pattern(r"a+b+((c)+d)+", r"aabccdcccd"), ["aabccdcccd"])
+
 
 
 

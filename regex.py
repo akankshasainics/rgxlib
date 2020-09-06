@@ -181,18 +181,63 @@ def find_closing_bracket(string: str, opening_loc: int) -> int:
 # 		return -1
 # 	return j - 1
 
+
+
+def solve_operators(pattern: str, text: str) -> list:
+	index = 0
+	match_indexes = []
+	while index < len(text):
+		match_index = match_regex(pattern, text[index:])
+		if match_index == -1:
+			break
+		match_indexes.append(match_index + index)
+		index += match_index 
+	return match_indexes
+
+
+
+def solve_repetative_pattern(i: int, groups: list, text: str) -> int:
+
+	pattern = groups[i]
+	is_parenthese = int(pattern[0] == "(")
+	is_plus = (pattern[-1] == "+")
+	match_indexes = solve_operators(pattern[is_parenthese: -1-is_parenthese], text)
+	l = (len(match_indexes) == 0)
+	if l and is_plus:
+		return -1, -1
+	for index in reversed(match_indexes):
+		if i+1 == len(groups) and index == len(text):
+			return len(text), len(groups) - i 
+		j = match_regex_groups(groups[i+1:], text[index:])
+		if j == len(text[index:]):
+			return len(text), len(groups) - i
+
+	return match_indexes[-1], 1
+
+
 def match_regex_groups(groups: list, text: str) -> int:
 	text_pointer = 0
-	for i,pattern in enumerate(groups):
+	i = 0
+	while i < len(groups) and text_pointer < len(text):
+		pattern = groups[i]
 		if pattern[-1] in operators:
-			index = solve_operators(pattern, text)
-		elif pattern[i] == text[text_pointer]:
+			text_inc, pattern_inc = solve_repetative_pattern(i, groups, text[text_pointer:])
+			if text_inc == -1:
+				return -1
+			text_pointer += text_inc
+			i += pattern_inc
+			
+		elif pattern == text[text_pointer]:
 			text_pointer += 1
-	print(i)
-	return text_pointer - 1
+			i += 1
 
+		else:
+			break
+	
+	if i != len(groups) or text_pointer == 0:
+		return -1
 
-
+	return text_pointer 
 
 
 
@@ -203,6 +248,7 @@ def check_for_operator(pattern: str, i: int) -> int:
 	return 1
 
 
+
 def break_regex(pattern: str) -> list:
 	i = 0
 	groups = []
@@ -210,7 +256,10 @@ def break_regex(pattern: str) -> list:
 		if pattern[i] in bracket_pair:
 			closing_bracket = find_closing_bracket(pattern, i)
 			is_operator = check_for_operator(pattern, closing_bracket)
-			groups.append(pattern[i: closing_bracket+1+is_operator])
+			if is_operator:
+				groups.append(pattern[i: closing_bracket+1+is_operator])
+			else:
+				groups.append(pattern[i+1: closing_bracket])
 			i = (closing_bracket+1+is_operator)
 
 		elif pattern[i] == "\\":
@@ -239,10 +288,15 @@ def match_regex(pattern: str, text: str) -> int:
 def find_pattern(pattern: str, text: str) -> list:
 	groups = break_regex(pattern)
 	result = []
-	for i in range(len(text)):
-		index = match_regex_groups(groups, text)
+	i = 0
+	while i < len(text):
+		index = match_regex_groups(groups, text[i:])
 		if index != -1:
-			result.append(text[i:index+1])
+			result.append(text[i:i+index])
+			i += index
+		else:
+			i += 1
+
 	return result
 
 
