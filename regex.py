@@ -98,6 +98,12 @@ def solve_backward_slash(pattern: str, text: str) -> int:
 		 return solve_repetative_pattern(pattern[:-1], text)
 	if (pattern[:2] in backward_slash_group) and (text[0] in backward_slash_group[pattern[:2]]):
 		return 1
+	elif (pattern[:2] == "\S") and (text[0] not in white_spaces):
+		return 1
+	elif (pattern[:2] == "\D") and (text[0] not in set(digits)):
+		return 1
+	elif (pattern[:2] == "\W") and (text[0] not in set(alpha_numeric)):
+		return 1
 	elif text[0] == pattern[1]:
 		return 1
 	return -1
