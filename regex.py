@@ -128,6 +128,11 @@ def solve_repetative_pattern(i: int, groups: list, text: str) -> tuple:
 	return text_inc, 1
 
 
+def solve_dot(pattern, text):
+	if pattern == "\n":
+		return -1
+	return 1
+
 
 def match_regex_groups(groups: list, text: str) -> int:
 	text_pointer = 0
@@ -147,6 +152,9 @@ def match_regex_groups(groups: list, text: str) -> int:
 
 		elif pattern[0] == "\\":
 			text_inc = solve_backward_slash(pattern, text[text_pointer])
+
+		elif pattern == ".":
+			text_inc = solve_dot(pattern, text[text_pointer:])
 			
 		elif pattern == text[text_pointer]:
 			text_inc = 1
