@@ -4,9 +4,10 @@ bracket_pair = { "(": ")", "[": "]"}
 small_alphabet = "abcdefghjijklmnopqrstuvwxyz"
 capital_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 digits = "0123456789"
+white_spaces = {" ", "	", "\n"}
 alpha_numeric = small_alphabet + capital_alphabet + digits + '_'
 groups = {"A-Z": set(capital_alphabet), "a-z": set(small_alphabet), "0-9": set(digits)}
-backward_slash_group = {"\d": set(digits), "\w": set(alpha_numeric)}
+backward_slash_group = {"\d": set(digits), "\w": set(alpha_numeric), "\s" : white_spaces}
 special_pattern = {"(": "solve_parentheese", "[": "solve_square_bracket", "\\": "solve_backward_slash"}
 operators = {"+", "*"}
 
@@ -135,31 +136,28 @@ def match_regex_groups(groups: list, text: str) -> int:
 		pattern = groups[i]
 		if pattern[-1] in operators:
 			text_inc, pattern_inc = solve_repetative_pattern(i, groups, text[text_pointer:])
-			i += pattern_inc
+			if i+pattern_inc == len(groups):
+				return text_pointer + text_inc
 
 		elif pattern[0] == "(":
 			text_inc = match_regex(pattern[1:-1], text[text_pointer:])
-			i += 1
 
 		elif pattern[0] == "[":
 			text_inc= solve_square_bracket(pattern, text[text_pointer:])
-			i += 1
 
 		elif pattern[0] == "\\":
 			text_inc = solve_backward_slash(pattern, text[text_pointer])
-			i += 1
 			
 		elif pattern == text[text_pointer]:
 			text_inc = 1
-			i += 1
 
 		else:
 			break
 
 		if text_inc == -1:
 			return -1
-		else:
-			text_pointer += text_inc
+		text_pointer += text_inc
+		i += 1
 		
 	
 	if i != len(groups) or text_pointer == 0:

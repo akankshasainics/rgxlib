@@ -10,10 +10,11 @@ class TestBasic(unittest.TestCase):
 		self.assertEqual(rx.break_regex(r"\s+(as+)+[a-z]+"), ["\s+", "(as+)+", "[a-z]+"])
 
 	def test_find_pattern(self):
-		self.assertEqual(rx.find_pattern(r"[\d]+(a)+", r"67aa7a"), ["67aa", "7a"])
+		self.assertEqual(rx.find_pattern(r"[\d]+(([\a]))+\w*", r"67aa7a 5a7"), ["67aa7a", "5a7"])
 		self.assertEqual(rx.find_pattern(r"((b)*(a)+c)+", r"baacbacac"), ["baacbacac"])
-		self.assertEqual(rx.find_pattern(r"[a-z]+\w+", "ak gh"), ["ak", "gh"])
-		self.assertEqual(rx.find_pattern(r"([a-z])*\w+", "Tree kdfg gh"), ["Tree", "kdfg", "gh"])
+		self.assertEqual(rx.find_pattern(r"[^a-z]*\w+", "ak9Agh"), ["ak9Agh"])
+		self.assertEqual(rx.find_pattern(r"([\a-z])\w+", "Tree kdfg 7gh"), ["ree", "kdfg", "gh"])
+		self.assertEqual(rx.find_pattern(r"a\s+b", r"a   b "), ["a   b"])
 
 
 
