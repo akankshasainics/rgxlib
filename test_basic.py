@@ -14,8 +14,7 @@ class TestBasic(unittest.TestCase):
 		self.assertEqual(rx.find_pattern(r"[\d]+(([\a]))+\w*", r"67aa7a 5a7"), ["67aa7a", "5a7"])
 		self.assertEqual(rx.find_pattern(r"((b)*(a)+c)+", r"baacbacac"), ["baacbacac"])
 		self.assertEqual(rx.find_pattern(r"[^a-z]*\w+", "ak9Agh"), ["ak9Agh"])
-		self.assertEqual(rx.find_pattern(r"([\a-z])\w+", "Tree kdfg 7gh"), ["ree", "kdfg", "gh"])
-		self.assertEqual(rx.find_pattern(r"a[.]+b", r"a.b "), ["a.b"])
+		self.assertEqual(rx.find_pattern(r"[0-4]+.", r"40abcd12ba"), ["40a", "12b"])
 
 
 

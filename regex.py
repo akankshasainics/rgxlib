@@ -33,6 +33,19 @@ def find_closing_bracket(string: str, opening_loc: int) -> int:
 
 
 
+def solve_range(pattern):
+	if pattern in groups:
+		return groups[pattern]
+	if pattern[0] > pattern[-1]:
+		raise ValueError("Range value reversed. Start char code is greater than end char code.")
+	s = set()
+	for c in range(ord(pattern[0]), ord(pattern[2])+1):
+		s.add(chr(c))
+
+	return s
+
+
+
 def set_of_square_bracket(pattern: str) -> set:
 	if len(pattern) == 0:
 		return set()
@@ -42,8 +55,8 @@ def set_of_square_bracket(pattern: str) -> set:
 		i = 1
 	
 	while i < len(pattern):
-		if i+2 < len(pattern) and pattern[i:i+3] in groups:
-			chars.update(groups[pattern[i:i+3]])
+		if i+2 < len(pattern) and pattern[i+1] == "-":
+			chars.update(solve_range(pattern[i:i+3]))
 			i = i+3
 		elif pattern[i] == "\\":
 			if i+1 == len(pattern):
@@ -51,8 +64,8 @@ def set_of_square_bracket(pattern: str) -> set:
 			if pattern[i:i+2] in backward_slash_group:
 				chars.update(backward_slash_group[pattern[i:i+2]])
 				i += 2
-			elif i+3 < len(pattern) and pattern[i+1: i+4] in groups:
-				chars.update(groups[pattern[i+1: i+4]])
+			elif i+3 < len(pattern) and pattern[i+2] == "-":
+				chars.update(solve_range(pattern[i+1: i+4]))
 				i += 4
 			else:
 				chars.update({pattern[i+1]})
@@ -99,6 +112,7 @@ def match_indexes_for_operators(pattern: str, text: str) -> list:
 			break
 		match_indexes.append(match_index + index)
 		index += match_index 
+
 	return match_indexes
 
 
@@ -120,7 +134,7 @@ def solve_repetative_pattern(i: int, groups: list, text: str) -> tuple:
 		if i+1 == len(groups) and index == len(text):
 			return len(text), len(groups) - i 
 		j = match_regex_groups(groups[i+1:], text[index:])
-		if j >= farest_point:
+		if j > farest_point:
 			farest_point = j
 			text_inc = index 
 		if j == len(text[index:]):
@@ -229,7 +243,6 @@ def find_pattern(pattern: str, text: str) -> list:
 			i += index
 		else:
 			i += 1
-
 	return result
 
 
