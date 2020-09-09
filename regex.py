@@ -1,4 +1,5 @@
 import sys
+import typing as t
 
 bracket_pair = { "(": ")", "[": "]"}
 small_alphabet = "abcdefghjijklmnopqrstuvwxyz"
@@ -6,9 +7,8 @@ capital_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 digits = "0123456789"
 white_spaces = {" ", "	", "\n"}
 alpha_numeric = small_alphabet + capital_alphabet + digits + '_'
-groups = {"A-Z": set(capital_alphabet), "a-z": set(small_alphabet), "0-9": set(digits)}
+set_of_ranges = {"A-Z": set(capital_alphabet), "a-z": set(small_alphabet), "0-9": set(digits)}
 backward_slash_group = {"\d": set(digits), "\w": set(alpha_numeric), "\s" : white_spaces}
-special_pattern = {"(": "solve_parentheese", "[": "solve_square_bracket", "\\": "solve_backward_slash"}
 operators = {"+", "*"}
 
 
@@ -33,9 +33,9 @@ def find_closing_bracket(string: str, opening_loc: int) -> int:
 
 
 
-def solve_range(pattern):
-	if pattern in groups:
-		return groups[pattern]
+def solve_range(pattern: str) -> t.Set[chr]:
+	if pattern in set_of_ranges:
+		return set_of_ranges[pattern]
 	if pattern[0] > pattern[-1]:
 		raise ValueError("Range value reversed. Start char code is greater than end char code.")
 	s = set()
@@ -46,31 +46,31 @@ def solve_range(pattern):
 
 
 
-def set_of_square_bracket(pattern: str) -> set:
+def parse_chars_class(pattern: str) -> t.Set[chr]:
 	if len(pattern) == 0:
 		return set()
 	i = 0
 	chars = set()
 	if pattern[0] == "^":
 		i = 1
-	
 	while i < len(pattern):
 		if i+2 < len(pattern) and pattern[i+1] == "-":
 			chars.update(solve_range(pattern[i:i+3]))
 			i = i+3
+		elif pattern[i:i+2] in backward_slash_group:
+			chars.update(backward_slash_group[pattern[i:i+2]])
+			i += 2
+
 		elif pattern[i] == "\\":
 			if i+1 == len(pattern):
 				raise ValueError("Dangling backslash")
-			if pattern[i:i+2] in backward_slash_group:
-				chars.update(backward_slash_group[pattern[i:i+2]])
-				i += 2
+			
 			elif i+3 < len(pattern) and pattern[i+2] == "-":
 				chars.update(solve_range(pattern[i+1: i+4]))
 				i += 4
 			else:
 				chars.update({pattern[i+1]})
 				i += 2
-			
 		else:
 			chars.add(pattern[i])
 			i += 1
@@ -78,9 +78,9 @@ def set_of_square_bracket(pattern: str) -> set:
 	return chars
 
 
-def solve_square_bracket(pattern: str, text: str) -> tuple:
+def solve_square_bracket(pattern: str, text: str) -> t.Tuple[int]:
 	ending_brack =find_closing_bracket(pattern, 0)
-	chars = set_of_square_bracket(pattern[1:ending_brack])
+	chars = parse_chars_class(pattern[1:ending_brack])
 	if pattern[1] == "^":
 		if text[0] not in chars:
 			return 1
@@ -109,7 +109,7 @@ def solve_backward_slash(pattern: str, text: str) -> int:
 	return -1
 
 
-def match_indexes_for_operators(pattern: str, text: str) -> list:
+def match_indexes_for_operators(pattern: str, text: str) -> t.List[int]:
 	index = 0
 	match_indexes = []
 	while index < len(text):
@@ -123,7 +123,7 @@ def match_indexes_for_operators(pattern: str, text: str) -> list:
 
 
 
-def solve_repetative_pattern(i: int, groups: list, text: str) -> tuple:
+def solve_repetative_pattern(i: int, groups: t.List[str], text: str) -> t.Tuple[int, int]:
 	pattern = groups[i]
 	is_parenthese = int(pattern[0] == "(")
 	is_plus = (pattern[-1] == "+")
@@ -134,25 +134,20 @@ def solve_repetative_pattern(i: int, groups: list, text: str) -> tuple:
 	elif l and not is_plus:
 		return 0, 1
 
-	text_inc = match_indexes[-1]
-	farest_point = 0
 	for index in reversed(match_indexes):
-		if i+1 == len(groups) and index == len(text):
-			return len(text), len(groups) - i 
 		j = match_regex_groups(groups[i+1:], text[index:])
-		if j > farest_point:
-			farest_point = j
-			text_inc = index 
-		if j == len(text[index:]):
-			return len(text), len(groups) - i
-	return text_inc, 1
+		if j != -1:
+			return index +j, len(groups) - i
+	
+	return -1, 0
 
 
-def solve_dot(pattern, text):
+def solve_dot(pattern: str, text: str) -> int:
 	if pattern == "\n":
 		return -1
 	return 1
 
+	
 
 def match_regex_groups(groups: list, text: str) -> int:
 	text_pointer = 0
@@ -188,7 +183,7 @@ def match_regex_groups(groups: list, text: str) -> int:
 		i += 1
 		
 	
-	if i != len(groups) or text_pointer == 0:
+	if i != len(groups):
 		return -1
 
 	return text_pointer 
@@ -202,12 +197,14 @@ def check_for_operator(pattern: str, i: int) -> int:
 	return 1
 
 
-
-def break_regex(pattern: str) -> list:
+def break_regex(pattern: str) -> t.List[str]:
 	i = 0
 	groups = []
 	while i < len(pattern):
-		if pattern[i] in bracket_pair:
+		if pattern[i] == ")":
+			raise ValueError("Unmatched closing bracket.")
+
+		elif pattern[i] in bracket_pair:
 			closing_bracket = find_closing_bracket(pattern, i)
 			is_operator = check_for_operator(pattern, closing_bracket)
 			groups.append(pattern[i: closing_bracket+1+is_operator])
@@ -215,13 +212,11 @@ def break_regex(pattern: str) -> list:
 	
 		elif pattern[i] == "\\":
 			if i+1 == len(pattern):
-				raise ValueError("Dangling backslash.")
+				raise DanglingException
 			is_operator = check_for_operator(pattern, i+1)
 			groups.append(pattern[i: i+2+is_operator])
 			i += (2 + is_operator)
 
-		elif pattern[i] == ")":
-			raise ValueError("Unmatched closing bracket.")
 
 		else:
 			is_operator = check_for_operator(pattern, i)
@@ -238,7 +233,7 @@ def match_regex(pattern: str, text: str) -> int:
 
 
 
-def find_pattern(pattern: str, text: str) -> list:
+def find_pattern(pattern: str, text: str) -> t.List[str]:
 	groups = break_regex(pattern)
 	result = []
 	i = 0
@@ -274,12 +269,4 @@ def find_pattern(pattern: str, text: str) -> list:
 
 
 
-
-
-
-# if __name__ == "__main__":
-# 	length_of_args = len(sys.argv)
-# 	args_list = str(sys.argv)
-# 	result = match_pattern(args_list[0], args_list[1])
-# 	print(result)
 
